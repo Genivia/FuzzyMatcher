@@ -34,15 +34,17 @@ To convert the regex pattern containing Unicode, such as `\p` Unicode classes:
 Examples
 --------
 
-pattern | max | matches                           | but not
-------- | --- | --------------------------------- | ---------------------------
-`abc`   | 1   | `abc`, `ab`, `ac`, `axc`, `axbc`  | `a`, `axx`, `bc`
-`año`   | 1   | `año`, `ano`, `ao`                | `anno`
-`ab_cd` | 2   | `ab_cd`, `ab-cd`, `ab Cd`, `abCd` | `ab\ncd`, `Ab_cd`, `Abcd`
+pattern    | max | matches                           | but not
+---------- | --- | --------------------------------- | ---------------------------
+`abc`      | 1   | `abc`, `ab`, `ac`, `axc`, `axbc`  | `a`, `axx`, `bc`
+`año`      | 1   | `año`, `ano`, `ao`                | `anno`
+`ab_cd`    | 2   | `ab_cd`, `ab-cd`, `ab Cd`, `abCd` | `ab\ncd`, `Ab_cd`, `Abcd`
+`a[0-9]+z` | 1   | `a1z`, `a123z`, `az`, `axz`       | `axxz`, `A123z`, `123z`
 
 Note that the first character of the pattern must match when searching text
 with the `find()` method.  Newlines and NUL characters are not deleted or
-substituted to ensure that matches are constrained to single strings and lines.
+substituted to ensure that matches are constrained within single strings and
+lines.
 
 Requires
 --------
