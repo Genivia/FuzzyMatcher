@@ -24,12 +24,25 @@ Usage
 where `max` is the maximum edit distance or 1 by default and `INPUT` is a
 string, wide string, `FILE*`, or `std::istream` object.
 
-Optionally, convert the regex pattern as follows to fully support Unicode:
+To convert the regex pattern containing Unicode, such as `\p` Unicode classes:
 
     #include <fuzzymatcher.h>
 
     std::string regex reflex::Matcher::convert("PATTERN", reflex::convert_flag::unicode);
     reflex::FuzzyMatcher matcher(regex, [max,] INPUT);
+
+Examples
+--------
+
+pattern | max | matches                           | but not
+------- | --- | --------------------------------- | ---------------------------
+`abc`   | 1   | `abc`, `ab`, `ac`, `axc`, `axbc`  | `a`, `axx`, `bc`
+`año`   | 1   | `año`, `ano`, `ao`                | `anno`
+`ab_cd` | 2   | `ab_cd`, `ab-cd`, `ab Cd`, `abCd` | `ab\ncd`, `Ab_cd`, `Abcd`
+
+Note that the first character of the pattern must match when searching text
+with the `find()` method.  Newlines and NUL characters are not deleted or
+substituted to ensure that matches are constrained to single strings and lines.
 
 Requires
 --------
@@ -62,4 +75,4 @@ This is currently in beta.
 License
 -------
 
-BSD-3.
+BSD-3
