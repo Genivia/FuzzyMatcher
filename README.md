@@ -4,10 +4,10 @@ FuzzyMatcher
 A C++ class extension of the [RE/flex](https://github.com/Genivia/RE-flex)
 library for fuzzy matching with regex patterns.
 
-- supports RE/flex regex pattern syntax, i.e. POSIX based, but with extensions
-- regex patterns are compiled to the RE/flex FSM VM opcodes for efficiency
+- supports RE/flex regex pattern syntax, i.e. POSIX based, but with many additions
+- regex patterns are compiled to the RE/flex DFA VM opcodes for speed
 - specify max edit distance ([Levenshstein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)) as a parameter
-- practically linear execution time in the length of the input N; pathelogical worst case O(NM) for regex length M
+- practically linear execution time in the length of the input N; pathological worst case O(NM) time for regex length M
 - no group captures (yet), except for top-level sub-pattern captures e.g. `(foo)|(bar)|(baz)`
 
 Usage
