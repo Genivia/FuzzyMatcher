@@ -6,8 +6,9 @@ library for fuzzy matching with regex patterns.
 
 - supports RE/flex regex pattern syntax, i.e. POSIX based, but with extensions
 - regex patterns are compiled to the RE/flex FSM VM opcodes for efficiency
-- max edit distance (Levenshstein distance) is specified as a parameter
+- specify max edit distance ([Levenshstein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)) as a parameter
 - worst case O(N M) time with regex length N and text length M (assuming a small max edit distance)
+- no group captures (yet), except for top-level sub-pattern captures e.g. `(foo)|(bar)|(baz)`
 
 Usage
 -----
@@ -26,8 +27,6 @@ string, wide string, `FILE*`, or `std::istream` object.
 
 To convert the regex pattern containing Unicode, such as `\p` Unicode classes:
 
-    #include <fuzzymatcher.h>
-
     std::string regex reflex::Matcher::convert("PATTERN", reflex::convert_flag::unicode);
     reflex::FuzzyMatcher matcher(regex, [max,] INPUT);
 
@@ -36,7 +35,7 @@ Examples
 
 pattern    | max | matches                           | but not
 ---------- | --- | --------------------------------- | ---------------------------
-`abc`      | 1   | `abc`, `ab`, `ac`, `axc`, `axbc`  | `a`, `axx`, `bc`
+`abc`      | 1   | `abc`, `ab`, `ac`, `axc`, `axbc`  | `a`, `axx`, `axbxc`, `bc`
 `año`      | 1   | `año`, `ano`, `ao`                | `anno`
 `ab_cd`    | 2   | `ab_cd`, `ab-cd`, `ab Cd`, `abCd` | `ab\ncd`, `Ab_cd`, `Abcd`
 `a[0-9]+z` | 1   | `a1z`, `a123z`, `az`, `axz`       | `axxz`, `A123z`, `123z`
