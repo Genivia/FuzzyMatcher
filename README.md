@@ -7,7 +7,7 @@ library for fuzzy matching with regex patterns.
 - supports RE/flex regex pattern syntax, i.e. POSIX based, but with extensions
 - regex patterns are compiled to the RE/flex FSM VM opcodes for efficiency
 - specify max edit distance ([Levenshstein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)) as a parameter
-- worst case O(N M) time with regex length N and text length M (assuming a small max edit distance)
+- practically linear execution time in the length of the input N; pathelogical worst case O(NM) for regex length M
 - no group captures (yet), except for top-level sub-pattern captures e.g. `(foo)|(bar)|(baz)`
 
 Usage
