@@ -573,7 +573,7 @@ unrolled:
           pc = pat_->opc_ + jump;
         }
 
-        if (cap_ > 0 || pos_ == static_cast<size_t>(txt_ - buf_) || pos_ == static_cast<size_t>(txt_ - buf_ + 1))
+        if (cap_ > 0 || pos_ == static_cast<size_t>(txt_ - buf_) || (pos_ == static_cast<size_t>(txt_ - buf_ + 1) && method != Const::MATCH))
           break;
 
         // no match

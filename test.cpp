@@ -44,13 +44,11 @@ int main(int argc, char **argv)
           max = static_cast<uint8_t>(n);
         }
         reflex::FuzzyMatcher matcher(reflex_pattern, max, text);
-        /* TODO only find() works well with fuzzy matching, perhaps look into match() and split() later
         if (!matcher.matches())
           printf("No match\n");
         else
           printf("Match\n");
         matcher.input(text);
-          */
         /* scan() will never work well with fuzzy matching, because of possible gaps i.e. abc matches abx but leaves x on the input
         while (matcher.scan())
           printf("Scan %zu '%s'\n", matcher.accept(), matcher.text());
@@ -58,11 +56,9 @@ int main(int argc, char **argv)
           */
         while (matcher.find())
           printf("Find %zu '%s' at %zu,%zu spans %zu..%zu %s\n", matcher.accept(), matcher.text(), matcher.lineno(), matcher.columno(), matcher.first(), matcher.last(), matcher.at_end() ? "at end" : "");
-        /*
         matcher.input(text);
         while (matcher.split())
           printf("Split %zu '%s' at %zu\n", matcher.accept(), matcher.text(), matcher.columno());
-          */
       }
     }
     catch (const reflex::regex_error& e)
