@@ -106,17 +106,17 @@ statically to avoid repeated construction, e.g. in loops and function calls:
 Requires
 --------
 
-[RE/flex](https://github.com/Genivia/RE-flex) downloaded and locally build or
+[RE/flex](https://github.com/Genivia/RE-flex) downloaded and locally built or
 globally installed to access the `reflex/include` and `reflex/lib` files.
 
-Build
------
+Compiling
+---------
 
-Assuming `reflex` dir with source code is locally build in the project dir:
+Assuming `reflex` dir with source code is locally built in the project dir:
 
     c++ -o myapp myapp.cpp -Ireflex/include reflex/lib/libreflex.a
 
-When the `libreflex` library is installed:
+Or when the `libreflex` library is installed:
 
     c++ -o myapp myapp.cpp -lreflex
 
