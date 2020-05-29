@@ -320,8 +320,10 @@ redo:
             int c0 = c1;
             c1 = get();
             DBGLOG("Get: c1 = %d", c1);
-            Pattern::Index back = Pattern::Const::IMAX; // where to jump back to (backtrack on meta transitions)
-            jump = Pattern::Const::IMAX; // to jump to longest sequence of matching metas
+            // where to jump back to (backtrack on meta transitions)
+            Pattern::Index back = Pattern::Const::IMAX;
+            // to jump to longest sequence of matching metas
+            jump = Pattern::Const::IMAX;
             while (true)
             {
               if ((jump == Pattern::Const::IMAX || back == Pattern::Const::IMAX) && !Pattern::is_opcode_goto(opcode))
@@ -453,7 +455,8 @@ redo:
                     continue;
                   case Pattern::META_EWB - Pattern::META_MIN:
                     DBGLOG("EWB? %d", at_eow());
-                    if (jump == Pattern::Const::IMAX && at_eow())
+                    if (jump == Pattern::Const::IMAX && isword(got_) &&
+                        !isword(static_cast<unsigned char>(method == Const::SPLIT ? txt_[len_] : *txt_)))
                     {
                       jump = Pattern::index_of(opcode);
                       if (jump == Pattern::Const::LONG)
@@ -463,7 +466,8 @@ redo:
                     continue;
                   case Pattern::META_BWB - Pattern::META_MIN:
                     DBGLOG("BWB? %d", at_bow());
-                    if (jump == Pattern::Const::IMAX && at_bow())
+                    if (jump == Pattern::Const::IMAX && !isword(got_) &&
+                        isword(static_cast<unsigned char>(method == Const::SPLIT ? txt_[len_] : *txt_)))
                     {
                       jump = Pattern::index_of(opcode);
                       if (jump == Pattern::Const::LONG)
@@ -483,7 +487,8 @@ redo:
                     continue;
                   case Pattern::META_NWB - Pattern::META_MIN:
                     DBGLOG("NWB? %d %d", at_bow(), at_eow());
-                    if (jump == Pattern::Const::IMAX && !at_bow() && !at_eow())
+                    if (jump == Pattern::Const::IMAX &&
+                        isword(got_) == isword(static_cast<unsigned char>(txt_[len_])))
                     {
                       jump = Pattern::index_of(opcode);
                       if (jump == Pattern::Const::LONG)
@@ -580,36 +585,42 @@ unrolled:
           pc = pat_->opc_ + jump;
         }
         // exit fuzzy loop if nothing consumed
-        if (pos_ == static_cast<size_t>(txt_ - buf_))
+        if (pos_ == static_cast<size_t>(txt_ + len_ - buf_))
           break;
         // match, i.e. cap_ > 0?
         if (method == Const::MATCH)
         {
-          // exit fuzzy loop if fuzzy match till end of input
+          // exit fuzzy loop if fuzzy match succeeds till end of input
           if (cap_ > 0)
           {
-            while (err_ < max_)
+            if (c1 == EOF)
+              break;
+            if (err_ < max_)
             {
-              c1 = get();
-              if (c1 == EOF)
-                break;
-              // skip one (multibyte) char
-              if (c1 >= 0xC0)
+              do
               {
-                int n = (c1 >= 0xE0) + (c1 >= 0xF0);
-                while (n-- >= 0)
-                  if ((c1 = get()) == EOF)
-                    break;
-              }
-              ++err_;
+                c1 = get();
+                if (c1 == EOF)
+                  break;
+                // skip one (multibyte) char
+                if (c1 >= 0xC0)
+                {
+                  int n = (c1 >= 0xE0) + (c1 >= 0xF0);
+                  while (n-- >= 0)
+                    if ((c1 = get()) == EOF)
+                      break;
+                }
+              } while (++err_ < max_);
+              DBGLOG("match pos = %zu", pos_);
+              set_current(pos_);
+              break;
             }
-            break;
           }
         }
         else
         {
           // exit fuzzy loop if match or first char mismatched
-          if (cap_ > 0 || pos_ == static_cast<size_t>(txt_ - buf_ + 1))
+          if (cap_ > 0 || pos_ == static_cast<size_t>(txt_ + len_ - buf_ + 1))
             break;
         }
         // no match, use fuzzy matching with max error
@@ -623,7 +634,7 @@ unrolled:
             if (stack == 0 || bpt_[stack - 1].pc0 != pc0)
             {
               point(bpt_[stack++], pc0, false, c1 == EOF);
-              DBGLOG("point[%u] at %zu EOF\n", stack - 1, pc0 - pat_->opc_);
+              DBGLOG("point[%u] at %zu EOF", stack - 1, pc0 - pat_->opc_);
             }
           }
           pc = NULL;
@@ -646,7 +657,7 @@ unrolled:
             if (stack == 0 || bpt_[stack - 1].pc0 != pc0)
             {
               point(bpt_[stack++], pc0);
-              DBGLOG("point[%u] at %zu pos %zu\n", stack - 1, pc0 - pat_->opc_, pos_ - 1);
+              DBGLOG("point[%u] at %zu pos %zu", stack - 1, pc0 - pat_->opc_, pos_ - 1);
             }
             // try deletion: skip one (multibyte) char then rerun opcode at pc0
             if (c1 >= 0xC0)
@@ -657,7 +668,7 @@ unrolled:
                   break;
             }
             pc = pc0;
-            DBGLOG("delete %c at pos %zu\n", c1, pos_ - 1);
+            DBGLOG("delete %c at pos %zu", c1, pos_ - 1);
           }
           else
           {
@@ -693,8 +704,9 @@ unrolled:
         ded_ += tab_.size() - n;
         DBGLOG("Dedents: ded = %zu tab_ = %zu", ded_, tab_.size());
         tab_.resize(n);
+        // adjust stop when indents are not aligned (Python would give an error)
         if (n > 0)
-          tab_.back() = col_; // adjust stop when indents are not aligned (Python would give an error)
+          tab_.back() = col_;
       }
     }
     if (ded_ > 0)
@@ -706,7 +718,8 @@ unrolled:
         tab_.resize(0);
         DBGLOG("Rescan for pending dedents: ded = %zu", ded_);
         pos_ = ind_;
-        bol = false; // avoid looping, match \j exactly
+        // avoid looping, match \j exactly
+        bol = false;
         goto redo;
       }
       --ded_;
@@ -751,39 +764,39 @@ unrolled:
     {
       if (method == Const::FIND && !at_end())
       {
-        /* TODO with fuzzy matching we can advance to the first matching char, but not beyond (i.e. do not use advance())
-        // only advance on a single prefix char or on single chars
-        if (pos_ == cur_ + 1) // early fail after one non-matching char, i.e. no META executed
+        // fuzzy search with find() can safely advance on a single prefix char of the regex
+        if (pos_ > cur_ && pat_->len_ > 0)
         {
-          if (advance())
+          // this part is based on advance() in matcher.cpp
+          size_t loc = cur_ + 1;
+          while (true)
           {
-            txt_ = buf_ + cur_;
-            if (!pat_->one_)
-              goto find;
-            len_ = pat_->len_;
-            txt_ = buf_ + cur_;
-            set_current(cur_ + len_);
-            return cap_ = 1;
-          }
-        }
-        else if (pos_ > cur_) // we didn't fail on META alone
-        {
-          if (advance())
-          {
-            if (!pat_->one_)
+            const char *s = buf_ + loc;
+            const char *e = buf_ + end_;
+            s = static_cast<const char*>(std::memchr(s, *pat_->pre_, e - s));
+            if (s != NULL)
+            {
+              loc = s - buf_;
+              set_current(loc);
               goto scan;
-            len_ = pat_->len_;
-            txt_ = buf_ + cur_;
-            set_current(cur_ + len_);
-            return cap_ = 1;
+            }
+            loc = e - buf_;
+            set_current_match(loc - 1);
+            peek_more();
+            loc = cur_ + 1;
+            if (loc + pat_->len_ > end_)
+            {
+              set_current(loc);
+              break;
+            }
           }
         }
-        */
         txt_ = buf_ + cur_;
       }
       else
       {
-        cur_ = txt_ - buf_; // no match: backup to begin of unmatched text
+        // no match: backup to begin of unmatched text
+        cur_ = txt_ - buf_;
       }
     }
     len_ = cur_ - (txt_ - buf_);
@@ -800,8 +813,10 @@ unrolled:
       else if (method == Const::FIND)
       {
         DBGLOG("Reject empty match and continue?");
-        set_current(++cur_); // skip one char to keep searching
-        if (cap_ == 0 || !opt_.N || (!bol && c1 == '\n')) // allow FIND with "N" to match an empty line, with ^$ etc.
+        // skip one char to keep searching
+        set_current(++cur_);
+        // allow FIND with "N" to match an empty line, with ^$ etc.
+        if (cap_ == 0 || !opt_.N || (!bol && c1 == '\n'))
           goto scan;
         DBGLOG("Accept empty match");
       }
@@ -820,8 +835,7 @@ unrolled:
     }
     else
     {
-      if (method != Const::MATCH)
-        set_current(cur_);
+      set_current(cur_);
       if (len_ > 0 && cap_ == Const::REDO && !opt_.A)
       {
         DBGLOG("Ignore accept and continue: len = %zu", len_);

@@ -4,17 +4,21 @@
 //
 // where 0 <= max_error <= 255 is the maximum edit distance^*, should be small, default is 1
 // *) Levenshstein distance: char insertion, substitution, deletion
-
-// ./test 'abcd' 'axbcd'
-// ./test 'abcd' 'axcd'
-// ./test 'abcd' 'acd'
-// ./test 'a😀cd' 'axcd'
-// ./test 'abcd' 'a😀cd'
-// ./test 'a\d+z' 'az'
-// ./test 'a\d+z' 'a9'
-// ./test 'ab_cd' 'abcd'
-// ./test 'ab_cd' 'ab-cd'
-// ./test 'ab_cd' 'abCd' 2
+//
+// Build after installing RE/flex:
+//   c++ -o test test.cpp -lreflex
+//
+// Run:
+//   ./test 'abcd' 'axbcd'
+//   ./test 'abcd' 'axcd'
+//   ./test 'abcd' 'acd'
+//   ./test 'a😀cd' 'axcd'
+//   ./test 'abcd' 'a😀cd'
+//   ./test 'a\d+z' 'az'
+//   ./test 'a\d+z' 'a9'
+//   ./test 'ab_cd' 'abcd'
+//   ./test 'ab_cd' 'ab-cd'
+//   ./test 'ab_cd' 'abCd' 2
 
 // #define DEBUG // enable debugging to stderr
 
@@ -27,7 +31,6 @@ int main(int argc, char **argv)
     try
     {
       std::string regex = reflex::Matcher::convert(argv[1], reflex::convert_flag::unicode);
-      printf("\n** RE/flex converted regex = %s\n\n", regex.c_str());
       reflex::Pattern reflex_pattern(regex, "mr");
       if (argc > 2)
       {
@@ -45,20 +48,20 @@ int main(int argc, char **argv)
         }
         reflex::FuzzyMatcher matcher(reflex_pattern, max, text);
         if (!matcher.matches())
-          printf("No match\n");
+          printf("matches(): no match\n");
         else
-          printf("Match (%u edits)\n", matcher.edits());
+          printf("matches(): match (%u edits)\n", matcher.edits());
         matcher.input(text);
         /* scan() will never work well with fuzzy matching, because of possible gaps i.e. abc matches abx but leaves x on the input
         while (matcher.scan())
-          printf("Scan %zu '%s'\n", matcher.accept(), matcher.text());
+          printf("scan(): %zu '%s'\n", matcher.accept(), matcher.text());
         matcher.input(text);
           */
         while (matcher.find())
-          printf("Find %zu '%s' at %zu,%zu spans %zu..%zu %s (%u edits)\n", matcher.accept(), matcher.text(), matcher.lineno(), matcher.columno(), matcher.first(), matcher.last(), matcher.at_end() ? "at end" : "", matcher.edits());
+          printf("find():    %zu '%s' at %zu,%zu spans %zu..%zu %s (%u edits)\n", matcher.accept(), matcher.text(), matcher.lineno(), matcher.columno(), matcher.first(), matcher.last(), matcher.at_end() ? "at end" : "", matcher.edits());
         matcher.input(text);
         while (matcher.split())
-          printf("Split %zu '%s' at %zu (%u edits)\n", matcher.accept(), matcher.text(), matcher.columno(), matcher.edits());
+          printf("split():   %zu '%s' at %zu (%u edits)\n", matcher.accept(), matcher.text(), matcher.columno(), matcher.edits());
       }
     }
     catch (const reflex::regex_error& e)

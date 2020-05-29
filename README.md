@@ -2,7 +2,7 @@ FuzzyMatcher
 ============
 
 A C++ class extension of the [RE/flex](https://github.com/Genivia/RE-flex)
-Matcher class to support fuzzy matching with regex patterns.
+Matcher class to support fuzzy matching and search with regex patterns.
 
 - specify max error as a parameter, i.e. the max edit distance or
   [Levenshstein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)
@@ -19,21 +19,29 @@ Matcher class to support fuzzy matching with regex patterns.
 - no group captures (yet), except for top-level sub-pattern group captures,
   e.g. `(foo)|(bar)|(baz)` but not `(foo(bar))`
 
+- Newlines and NUL characters are never deleted or substituted to ensure that
+  errors (edits) do not result in fuzzy matches spanning multiple strings or
+  lines
+
 Examples
 --------
 
-pattern    | max | matches                           | but not
----------- | --- | --------------------------------- | ---------------------------
+pattern    | max | fuzzy `find()` matches            | but not
+---------- | --- | --------------------------------- | -------------------------
 `abc`      | 1   | `abc`, `ab`, `ac`, `axc`, `axbc`  | `a`, `axx`, `axbxc`, `bc`
 `año`      | 1   | `año`, `ano`, `ao`                | `anno`
 `ab_cd`    | 2   | `ab_cd`, `ab-cd`, `ab Cd`, `abCd` | `ab\ncd`, `Ab_cd`, `Abcd`
 `a[0-9]+z` | 1   | `a1z`, `a123z`, `az`, `axz`       | `axxz`, `A123z`, `123z`
 
 Note that the first character of the pattern must match when searching with the
-`find()` method.  The `matches()` method does not impose this requirement.
-Newlines and NUL characters are never deleted or substituted to ensure that
-errors (edits) do not result in fuzzy matches spanning multiple strings or
-lines.
+`find()` method.  The `matches()` method does not impose this requirement:
+
+pattern    | max | fuzzy `matches()` matches                            | but not
+---------- | --- | ---------------------------------------------------- | -------------------------
+`abc`      | 1   | `abc`, `ab`, `ac`, `Abc`, `xbc` `bc`, `axc`, `axbc`  | `a`, `axx`, `Ab`, `axbxc`
+`año`      | 1   | `año`, `Año`, `ano`, `ao`, ``ño``                    | `anno`
+`ab_cd`    | 2   | `ab_cd`, `Ab_Cd`, `ab-cd`, `ab Cd`, `Ab_cd`, `abCd`  | `ab\ncd`, `AbCd`
+`a[0-9]+z` | 1   | `a1z`, `A1z`, `a123z`, `az`, `Az`, `axz`, `123z`     | `axxz`
 
 Usage
 -----
@@ -41,7 +49,7 @@ Usage
 See the [RE/flex user guide](https://www.genivia.com/doc/reflex/html/#regex-methods)
 for the full list of matcher class methods available to extract match info.
 
-### Search text to find matches
+### Fuzzy searching
 
     #include "fuzzymatcher.h"
 
@@ -55,7 +63,7 @@ for the full list of matcher class methods available to extract match info.
 where `max` is the maximum edit distance (1 by default) and `INPUT` is a
 string, wide string, `FILE*`, or `std::istream` object.
 
-### Match text
+### Fuzzy matching
 
     #include "fuzzymatcher.h"
 
@@ -64,7 +72,7 @@ string, wide string, `FILE*`, or `std::istream` object.
       std::cout << "fuzzy pattern matched\n";
     }
 
-### Split text between matches
+### Fuzzy splitting (text between matches)
 
     #include "fuzzymatcher.h"
 
@@ -115,13 +123,17 @@ When the `libreflex` library is installed:
 Testing
 -------
 
-    make test
-    ./test 'ab_cd' 'abCd' 2
+    $ make test
+    $ ./test 'ab_cd' 'abCd' 2
+    matches(): match (2 edits)
+    find():    1 'abCd' at 1,0 spans 0..4 at end (2 edits)
+    split():   1 '' at 0 (2 edits)
+    split():   4294967295 '' at 4 (0 edits)
 
 Bugs
 ----
 
-This is currently in beta.
+This project is currently in beta.
 
 License
 -------
