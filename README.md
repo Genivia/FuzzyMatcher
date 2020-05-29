@@ -32,7 +32,8 @@ pattern    | max | matches                           | but not
 Note that the first character of the pattern must match when searching with the
 `find()` method.  The `matches()` method does not impose this requirement.
 Newlines and NUL characters are never deleted or substituted to ensure that
-matches are constrained within single strings and lines.   
+errors (edits) do not result in fuzzy matches spanning multiple strings or
+lines.
 
 Usage
 -----

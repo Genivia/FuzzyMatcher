@@ -124,6 +124,13 @@ class FuzzyMatcher : public Matcher {
   {
     return new FuzzyMatcher(*this);
   }
+  /// Returns the number of edits made for the match, edits() <= max, not guaranteed to be the minimum edit distance.
+  uint8_t edits()
+    /// @returns 0 to max edit distance
+    const
+  {
+    return err_;
+  }
  protected:
   /// Backtrack point.
   struct BacktrackPoint {
@@ -572,12 +579,38 @@ unrolled:
           }
           pc = pat_->opc_ + jump;
         }
-
-        if (cap_ > 0 || pos_ == static_cast<size_t>(txt_ - buf_) || (pos_ == static_cast<size_t>(txt_ - buf_ + 1) && method != Const::MATCH))
+        // exit fuzzy loop if nothing consumed
+        if (pos_ == static_cast<size_t>(txt_ - buf_))
           break;
-
-        // no match
-
+        // match, i.e. cap_ > 0?
+        if (method == Const::MATCH)
+        {
+          // exit fuzzy loop if fuzzy match till end of input
+          if (cap_ > 0)
+          {
+            while (err_ < max_ && c1 != EOF)
+            {
+              ++err_;
+              // skip one (multibyte) char
+              c1 = get();
+              if (c1 >= 0xC0)
+              {
+                int n = (c1 >= 0xE0) + (c1 >= 0xF0);
+                while (n-- >= 0)
+                  if ((c1 = get()) == EOF)
+                    break;
+              }
+            }
+            break;
+          }
+        }
+        else
+        {
+          // exit fuzzy loop if match or first char mismatched
+          if (cap_ > 0 || pos_ == static_cast<size_t>(txt_ - buf_ + 1))
+            break;
+        }
+        // no match, use fuzzy matching with max error
         if (c1 == '\0' || c1 == '\n' || c1 == EOF)
         {
           // do not try to fuzzy match past NUL, LF, or EOF
@@ -785,17 +818,15 @@ unrolled:
     }
     else
     {
-      set_current(cur_);
-      if (len_ > 0)
+      if (method != Const::MATCH)
+        set_current(cur_);
+      if (len_ > 0 && cap_ == Const::REDO && !opt_.A)
       {
-        if (cap_ == Const::REDO && !opt_.A)
-        {
-          DBGLOG("Ignore accept and continue: len = %zu", len_);
-          len_ = 0;
-          if (method != Const::MATCH)
-            goto scan;
-          cap_ = 0;
-        }
+        DBGLOG("Ignore accept and continue: len = %zu", len_);
+        len_ = 0;
+        if (method != Const::MATCH)
+          goto scan;
+        cap_ = 0;
       }
     }
     DBGLOG("Return: cap = %zu txt = '%s' len = %zu pos = %zu got = %d", cap_, std::string(txt_, len_).c_str(), len_, pos_, got_);
