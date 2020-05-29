@@ -130,11 +130,6 @@ Testing
     split():   1 '' at 0 (2 edits)
     split():   4294967295 '' at 4 (0 edits)
 
-Bugs
-----
-
-This project is currently in beta.
-
 License
 -------
 
