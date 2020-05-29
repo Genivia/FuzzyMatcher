@@ -588,11 +588,12 @@ unrolled:
           // exit fuzzy loop if fuzzy match till end of input
           if (cap_ > 0)
           {
-            while (err_ < max_ && c1 != EOF)
+            while (err_ < max_)
             {
-              ++err_;
-              // skip one (multibyte) char
               c1 = get();
+              if (c1 == EOF)
+                break;
+              // skip one (multibyte) char
               if (c1 >= 0xC0)
               {
                 int n = (c1 >= 0xE0) + (c1 >= 0xF0);
@@ -600,6 +601,7 @@ unrolled:
                   if ((c1 = get()) == EOF)
                     break;
               }
+              ++err_;
             }
             break;
           }
