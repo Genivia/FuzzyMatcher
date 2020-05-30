@@ -50,7 +50,8 @@ class FuzzyMatcher : public Matcher {
   FuzzyMatcher()
     :
       Matcher(),
-      max_(1)
+      max_(1),
+      err_(0)
   {
     bpt_.resize(max_);
   }
@@ -62,7 +63,8 @@ class FuzzyMatcher : public Matcher {
       const char  *opt = NULL)      ///< option string of the form `(A|N|T(=[[:digit:]])?|;)*`
     :
       Matcher(pattern, input, opt),
-      max_(1)
+      max_(1),
+      err_(0)
   {
     bpt_.resize(max_);
   }
@@ -75,32 +77,35 @@ class FuzzyMatcher : public Matcher {
       const char  *opt = NULL)      ///< option string of the form `(A|N|T(=[[:digit:]])?|;)*`
     :
       Matcher(pattern, input, opt),
-      max_(max)
+      max_(max),
+      err_(0)
   {
     bpt_.resize(max_);
   }
   /// Construct matcher engine from a pattern or a string regex, and an input character sequence.
   template<typename P> /// @tparam <P> a reflex::Pattern or a string regex 
   FuzzyMatcher(
-      const P&     pattern,          ///< a reflex::Pattern or a string regex for this matcher
-      const Input& input = Input(),  ///< input character sequence for this matcher
-      const char   *opt = NULL)      ///< option string of the form `(A|N|T(=[[:digit:]])?|;)*`
+      const P&     pattern,         ///< a reflex::Pattern or a string regex for this matcher
+      const Input& input = Input(), ///< input character sequence for this matcher
+      const char  *opt = NULL)      ///< option string of the form `(A|N|T(=[[:digit:]])?|;)*`
     :
       Matcher(pattern, input, opt),
-      max_(1)
+      max_(1),
+      err_(0)
   {
     bpt_.resize(max_);
   }
   /// Construct matcher engine from a pattern or a string regex, and an input character sequence.
   template<typename P> /// @tparam <P> a reflex::Pattern or a string regex 
   FuzzyMatcher(
-      const P&     pattern,          ///< a reflex::Pattern or a string regex for this matcher
-      uint8_t      max,              ///< max errors
-      const Input& input = Input(),  ///< input character sequence for this matcher
-      const char   *opt = NULL)      ///< option string of the form `(A|N|T(=[[:digit:]])?|;)*`
+      const P&     pattern,         ///< a reflex::Pattern or a string regex for this matcher
+      uint8_t      max,             ///< max errors
+      const Input& input = Input(), ///< input character sequence for this matcher
+      const char  *opt = NULL)      ///< option string of the form `(A|N|T(=[[:digit:]])?|;)*`
     :
       Matcher(pattern, input, opt),
-      max_(max)
+      max_(max),
+      err_(0)
   {
     bpt_.resize(max_);
   }
@@ -108,8 +113,10 @@ class FuzzyMatcher : public Matcher {
   FuzzyMatcher(const FuzzyMatcher& matcher) ///< matcher to copy with pattern (pattern may be shared)
     :
       Matcher(matcher),
-      max_(matcher.max_)
+      max_(matcher.max_),
+      err_(0)
   {
+    DBGLOG("FuzzyMatcher::FuzzyMatcher(matcher)");
     bpt_.resize(max_);
   }
   /// Assign a matcher.
@@ -117,6 +124,7 @@ class FuzzyMatcher : public Matcher {
   {
     Matcher::operator=(matcher);
     max_ = matcher.max_;
+    err_ = 0;
     return *this;
   }
   /// Polymorphic cloning.
@@ -744,7 +752,7 @@ unrolled:
         set_current(end_);
         got_ = Const::EOB;
         DBGLOG("Split at eof: cap = %zu txt = '%s' len = %zu", cap_, std::string(txt_, len_).c_str(), len_);
-        DBGLOG("END Matcher::match()");
+        DBGLOG("END FuzzyMatcher::match()");
         return cap_;
       }
       if (cur_ == 0 && at_bob() && at_end())
@@ -757,7 +765,7 @@ unrolled:
         set_current(cur_);
       }
       DBGLOG("Split: txt = '%s' len = %zu", std::string(txt_, len_).c_str(), len_);
-      DBGLOG("END Matcher::match()");
+      DBGLOG("END FuzzyMatcher::match()");
       return cap_;
     }
     if (cap_ == 0)
@@ -851,7 +859,7 @@ unrolled:
   }
   std::vector<BacktrackPoint> bpt_; ///< vector of backtrack points, max_ size
   uint8_t max_;                     ///< max errors
-  uint8_t err_;                     ///< accumulated approximate (!) edit distance
+  uint8_t err_;                     ///< accumulated edit distance (not minimal)
 };
 
 } // namespace reflex

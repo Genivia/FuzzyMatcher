@@ -19,9 +19,9 @@ Matcher class to support fuzzy matching and search with regex patterns.
 - no group captures (yet), except for top-level sub-pattern group captures,
   e.g. `(foo)|(bar)|(baz)` but not `(foo(bar))`
 
-- Newlines and NUL characters are never deleted or substituted to ensure that
-  errors (edits) do not result in fuzzy matches spanning multiple strings or
-  lines
+- Newlines (`\n`) and NUL (`\0`) characters are never deleted or substituted
+  to ensure that fuzzy matches do not extend the pattern match beyond the
+  number of lines that the pattern specifies
 
 Examples
 --------
@@ -46,28 +46,29 @@ pattern    | max | fuzzy `matches()` matches                            | but no
 Usage
 -----
 
-See the [RE/flex user guide](https://www.genivia.com/doc/reflex/html/#regex-methods)
-for the full list of matcher class methods available to extract match info.
-
 ### Fuzzy searching
 
     #include "fuzzymatcher.h"
 
-    reflex::FuzzyMatcher matcher("PATTERN", [max,] INPUT);
+    // MAX:   optional maximum edit distance, default is 1
+    // INPUT: a string, wide string, FILE*, or std::istream object
+    reflex::FuzzyMatcher matcher("PATTERN", [MAX,] INPUT);
 
     while (matcher.find())
     {
-      std::cout << matcher.text() << '\n' // show each fuzzy match
+      std::cout << matcher.text() << '\n'  // show each fuzzy match
+      std::cout << matcher.edits() << '\n' // edit dist. (when > 0: not guaranteed min)
     }
 
-where `max` is the maximum edit distance (1 by default) and `INPUT` is a
-string, wide string, `FILE*`, or `std::istream` object.
+See the [RE/flex user guide](https://www.genivia.com/doc/reflex/html/#regex-methods)
+for the full list of `Matcher` class methods available to extract match info.
 
 ### Fuzzy matching
 
     #include "fuzzymatcher.h"
 
-    if (reflex::FuzzyMatcher("PATTERN", [max,] INPUT).matches())
+    // e.g. all in one go with a temporary fuzzy matcher object
+    if (reflex::FuzzyMatcher("PATTERN", [MAX,] INPUT).matches())
     {
       std::cout << "fuzzy pattern matched\n";
     }
@@ -76,7 +77,7 @@ string, wide string, `FILE*`, or `std::istream` object.
 
     #include "fuzzymatcher.h"
 
-    reflex::FuzzyMatcher matcher("PATTERN", [max,] INPUT);
+    reflex::FuzzyMatcher matcher("PATTERN", [MAX,] INPUT);
 
     while (matcher.split())
     {
@@ -89,19 +90,16 @@ To support full Unicode pattern matching, such as `\p` Unicode character
 classes, convert the regex pattern before using it as follows:
 
     std::string regex(reflex::Matcher::convert("PATTERN", reflex::convert_flag::unicode));
-    reflex::FuzzyMatcher matcher(regex, [max,] INPUT);
+    reflex::FuzzyMatcher matcher(regex, [MAX,] INPUT);
 
 ### Static regex patterns
 
-Fixed patterns should be constructed (and Unicode converted) just once
-statically to avoid repeated construction, e.g. in loops and function calls:
+Fixed patterns should be constructed (and optionally Unicode converted) just
+once statically to avoid repeated construction, e.g. in loops and function
+calls:
 
     static const reflex::Pattern pattern(reflex::Matcher::convert("PATTERN", reflex::convert_flag::unicode));
-
-    if (reflex::FuzzyMatcher(pattern, [max,] INPUT).matches())
-    {
-      std::cout << "fuzzy pattern matched\n";
-    }
+    reflex::FuzzyMatcher matcher(pattern, [MAX,] INPUT);
 
 Requires
 --------
