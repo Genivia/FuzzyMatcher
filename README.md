@@ -33,8 +33,9 @@ pattern    | max | fuzzy `find()` matches            | but not
 `ab_cd`    | 2   | `ab_cd`, `ab-cd`, `ab Cd`, `abCd` | `ab\ncd`, `Ab_cd`, `Abcd`
 `a[0-9]+z` | 1   | `a1z`, `a123z`, `az`, `axz`       | `axxz`, `A123z`, `123z`
 
-Note that the first character of the pattern must match when searching with the
-`find()` method.  The `matches()` method does not impose this requirement:
+Note that the first character of the pattern must match when searching a corpus
+with the `find()` method.  By contrast. the `matches()` method to match a
+corpus from start to end does not impose this requirement:
 
 pattern    | max | fuzzy `matches()` matches                            | but not
 ---------- | --- | ---------------------------------------------------- | -------------------------
@@ -57,7 +58,7 @@ Usage
     while (matcher.find())
     {
       std::cout << matcher.text() << '\n'  // show each fuzzy match
-      std::cout << matcher.edits() << '\n' // edit dist. (when > 0: not guaranteed min)
+      std::cout << matcher.edits() << '\n' // edit dist. (when > 1 not guaranteed minimal)
     }
 
 See the [RE/flex user guide](https://www.genivia.com/doc/reflex/html/#regex-methods)
@@ -83,6 +84,28 @@ for the full list of `Matcher` class methods available to extract match info.
     {
       std::cout << matcher.text() << '\n' // show text between fuzzy matches
     }
+
+### Character insertion, deletion and/or substitution
+
+The `MAX` parameter may be combined with one or more of the following flags:
+
+- `reflex::FuzzyMatcher::INS` allow character insertions into the corpus
+- `reflex::FuzzyMatcher::DEL` allow character deletions from the corpus
+- `reflex::FuzzyMatcher::SUB` character substitutions in the corpus count as one edit
+
+For example, to allow approximate pattern matches to include up to three
+character insertions into the corpus, but no deletions or substitutions (this
+is actually the most efficient fuzzy matching possible):
+
+    reflex::FuzzyMatcher matcher(regex, 3 | reflex::FuzzyMatcher::INS, INPUT);
+
+To allow up to three insertions or deletions (note that a substitution counts
+as two edits: one insertion and one deletion):
+
+    reflex::FuzzyMatcher matcher(regex, 3 | reflex::FuzzyMatcher::INS | reflex::FuzzyMatcher::DEL, INPUT);
+
+When no flags are specified with `MAX`, fuzzy matching is performed with
+insertions, deletions, and substitutions, each counting as one edit.
 
 ### Full Unicode support
 

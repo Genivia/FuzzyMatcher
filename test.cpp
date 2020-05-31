@@ -1,8 +1,11 @@
 // test FuzzyMatcher
 //
-// test regex text [max_error]
+// test regex text [max_error [ids]]
 //
-// where 0 <= max_error <= 255 is the maximum edit distance^*, should be small, default is 1
+// where:
+// 0 <= max_error <= 255 is the maximum edit distance^*, should be small, defaults to 1
+// ids is one or more characters i, d, or s to limit edits to insert/delete/substitute
+//
 // *) Levenshstein distance: char insertion, substitution, deletion
 //
 // Build after installing RE/flex:
@@ -36,6 +39,7 @@ int main(int argc, char **argv)
       {
         const char *text = argv[2];
         uint8_t max = 1;
+        uint16_t flags = 0;
         if (argc > 3)
         {
           unsigned long n = strtoul(argv[3], NULL, 10);
@@ -45,8 +49,17 @@ int main(int argc, char **argv)
             exit(EXIT_FAILURE);
           }
           max = static_cast<uint8_t>(n);
+          if (argc > 4)
+          {
+            if (strchr(argv[4], 'i') != NULL)
+              flags |= reflex::FuzzyMatcher::INS;
+            if (strchr(argv[4], 'd') != NULL)
+              flags |= reflex::FuzzyMatcher::DEL;
+            if (strchr(argv[4], 's') != NULL)
+              flags |= reflex::FuzzyMatcher::SUB;
+          }
         }
-        reflex::FuzzyMatcher matcher(reflex_pattern, max, text);
+        reflex::FuzzyMatcher matcher(reflex_pattern, max | flags, text);
         if (!matcher.matches())
           printf("matches(): no match\n");
         else
