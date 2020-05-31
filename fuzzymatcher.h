@@ -241,7 +241,6 @@ class FuzzyMatcher : public Matcher {
     // substitute or insert a pattern char in the text?
     if (bpt.sub)
     {
-      printf("sub %zu %u\n", pos_, err_); // FIXME
       DBGLOG("Substitute, jump to %u at pos %zu", jump, pos_);
       // skip UTF-8 multibytes
       int c = get();
@@ -257,7 +256,6 @@ class FuzzyMatcher : public Matcher {
     }
     else
     {
-      printf("del %zu %u\n", pos_, err_); // FIXME
       DBGLOG("Insert, jump to %u at pos %zu", jump, pos_);
       bpt.sub = bpt.alt;
       ++bpt.pc1;
@@ -697,7 +695,6 @@ unrolled:
             }
             if (ins_)
             {
-              printf("ins %zu %u\n", pos_ - 1, err_); // FIXME
               // try pattern char deletion (text insertion): skip one (multibyte) char then rerun opcode at pc0
               if (c1 >= 0xC0)
               {
