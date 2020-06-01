@@ -23,24 +23,26 @@ Matcher class to support fuzzy matching and search with regex patterns.
   to ensure that fuzzy matches do not extend the pattern match beyond the
   number of lines that the pattern specifies
 
+- FuzzyMatcher is used in the [ugrep](https://github.com/Genivia/ugrep) project
+
 Examples
 --------
 
 pattern    | max | fuzzy `find()` matches            | but not
 ---------- | --- | --------------------------------- | -------------------------
 `abc`      | 1   | `abc`, `ab`, `ac`, `axc`, `axbc`  | `a`, `axx`, `axbxc`, `bc`
-`año`      | 1   | `año`, `ano`, `ao`                | `anno`
+`año`      | 1   | `año`, `ano`, `ao`                | `anno`, `ño`
 `ab_cd`    | 2   | `ab_cd`, `ab-cd`, `ab Cd`, `abCd` | `ab\ncd`, `Ab_cd`, `Abcd`
 `a[0-9]+z` | 1   | `a1z`, `a123z`, `az`, `axz`       | `axxz`, `A123z`, `123z`
 
 Note that the first character of the pattern must match when searching a corpus
-with the `find()` method.  By contrast. the `matches()` method to match a
+with the `find()` method.  By contrast, the `matches()` method to match a
 corpus from start to end does not impose this requirement:
 
 pattern    | max | fuzzy `matches()` matches                            | but not
 ---------- | --- | ---------------------------------------------------- | -------------------------
 `abc`      | 1   | `abc`, `ab`, `ac`, `Abc`, `xbc` `bc`, `axc`, `axbc`  | `a`, `axx`, `Ab`, `axbxc`
-`año`      | 1   | `año`, `Año`, `ano`, `ao`, ``ño``                    | `anno`
+`año`      | 1   | `año`, `Año`, `ano`, `ao`, `ño`                      | `anno`
 `ab_cd`    | 2   | `ab_cd`, `Ab_Cd`, `ab-cd`, `ab Cd`, `Ab_cd`, `abCd`  | `ab\ncd`, `AbCd`
 `a[0-9]+z` | 1   | `a1z`, `A1z`, `a123z`, `az`, `Az`, `axz`, `123z`     | `axxz`
 
@@ -147,9 +149,9 @@ Testing
     $ make test
     $ ./test 'ab_cd' 'abCd' 2
     matches(): match (2 edits)
-    find():    1 'abCd' at 1,0 spans 0..4 at end (2 edits)
-    split():   1 '' at 0 (2 edits)
-    split():   4294967295 '' at 4 (0 edits)
+    find():    'abCd' at 0 (2 edits)
+    split():   '' at 0 (2 edits)
+    split():   '' at 4 (0 edits)
 
 License
 -------

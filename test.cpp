@@ -65,16 +65,16 @@ int main(int argc, char **argv)
         else
           printf("matches(): match (%u edits)\n", matcher.edits());
         matcher.input(text);
-        /* scan() will never work well with fuzzy matching, because of possible gaps i.e. abc matches abx but leaves x on the input
+        /* scan() may not work well with fuzzy matching, because of possible "gaps" between matches caused by fuzzy matches
         while (matcher.scan())
-          printf("scan(): %zu '%s'\n", matcher.accept(), matcher.text());
+          printf("scan():    '%s' at %zu (%u edits)\n", matcher.text(), matcher.columno(), matcher.edits());
         matcher.input(text);
           */
         while (matcher.find())
-          printf("find():    %zu '%s' at %zu,%zu spans %zu..%zu %s (%u edits)\n", matcher.accept(), matcher.text(), matcher.lineno(), matcher.columno(), matcher.first(), matcher.last(), matcher.at_end() ? "at end" : "", matcher.edits());
+          printf("find():    '%s' at %zu (%u edits)\n", matcher.text(), matcher.columno(), matcher.edits());
         matcher.input(text);
         while (matcher.split())
-          printf("split():   %zu '%s' at %zu (%u edits)\n", matcher.accept(), matcher.text(), matcher.columno(), matcher.edits());
+          printf("split():   '%s' at %zu (%u edits)\n", matcher.text(), matcher.columno(), matcher.edits());
       }
     }
     catch (const reflex::regex_error& e)
