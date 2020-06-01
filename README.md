@@ -53,7 +53,7 @@ Usage
 
     #include "fuzzymatcher.h"
 
-    // MAX:   optional maximum edit distance, default is 1
+    // MAX:   optional maximum edit distance, default is 1, up to 255
     // INPUT: a string, wide string, FILE*, or std::istream object
     reflex::FuzzyMatcher matcher("PATTERN", [MAX,] INPUT);
 
