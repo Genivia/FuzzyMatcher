@@ -19,9 +19,9 @@ Matcher class to support fuzzy matching and search with regex patterns.
 - no group captures (yet), except for top-level sub-pattern group captures,
   e.g. `(foo)|(bar)|(baz)` but not `(foo(bar))`
 
-- Newlines (`\n`) and NUL (`\0`) characters are never deleted or substituted
+- newlines (`\n`) and NUL (`\0`) characters are never deleted or substituted
   to ensure that fuzzy matches do not extend the pattern match beyond the
-  number of lines that the pattern specifies
+  number of lines specified by the regex pattern
 
 - FuzzyMatcher is used in the [ugrep](https://github.com/Genivia/ugrep) project
 
