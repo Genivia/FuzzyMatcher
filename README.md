@@ -146,8 +146,8 @@ Or when the `libreflex` library is installed:
 Testing
 -------
 
-    $ make test
-    $ ./test 'ab_cd' 'abCd' 2
+    $ make ftest
+    $ ./ftest 'ab_cd' 'abCd' 2
     matches(): match (2 edits)
     find():    'abCd' at 0 (2 edits)
     split():   '' at 0 (2 edits)

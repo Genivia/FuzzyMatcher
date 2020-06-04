@@ -211,8 +211,8 @@ class FuzzyMatcher : public Matcher {
     {
       if (!Pattern::is_opcode_goto(*bpt.pc0) || (Pattern::lo_of(*bpt.pc0) & 0xC0) != 0xC0)
         return bpt.pc1 = NULL;
-      // loop over UTF-8 multibytes, linear case only (i.e. one wide char)
-      for (int i = 0; i < 4; ++i)
+      // loop over UTF-8 multibytes, checking linear case only (i.e. one wide char or a short range)
+      for (int i = 0; i < 3; ++i)
       {
         jump = Pattern::index_of(*bpt.pc0);
         if (jump == Pattern::Const::HALT)
@@ -223,7 +223,7 @@ class FuzzyMatcher : public Matcher {
         const Pattern::Opcode *pc1 = pc0;
         while (!Pattern::is_opcode_goto(*pc1))
           ++pc1;
-        if ((Pattern::lo_of(*pc1) & 0x80) != 0x80)
+        if (!Pattern::is_opcode_goto(*pc1) || Pattern::is_meta(Pattern::lo_of(*pc1)) || (Pattern::lo_of(*pc1) & 0x80) != 0x80)
           break;
         bpt.pc0 = pc0;
         bpt.pc1 = pc1;

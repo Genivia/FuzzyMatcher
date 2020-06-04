@@ -8,7 +8,7 @@ CXXIFLAGS = -I. -I../include
 CXXMFLAGS =
 CXXFLAGS  = $(CXXWFLAGS) $(CXXOFLAGS) $(CXXIFLAGS) $(CXXMFLAGS)
 
-test:		test.cpp fuzzymatcher.h
+ftest:		ftest.cpp fuzzymatcher.h
 		$(CXX) $(CXXFLAGS) -o $@ $< $(LIBREFLEX)
 
 .PHONY:		clean
@@ -21,4 +21,4 @@ clean:
 		-rm -f *.o *.gch *.log
 		-rm -f lex.yy.h lex.yy.cpp y.tab.h y.tab.c reflex.*.cpp reflex.*.gv reflex.*.txt
 		-rm -f a.out dump.gv dump.pdf dump.cpp
-		-rm -f test
+		-rm -f ftest
