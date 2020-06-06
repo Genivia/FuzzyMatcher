@@ -57,6 +57,7 @@ Usage
     // INPUT: a string, wide string, FILE*, or std::istream object
     reflex::FuzzyMatcher matcher("PATTERN", [MAX,] INPUT);
 
+    // find all pattern matches in the input
     while (matcher.find())
     {
       std::cout << matcher.text() << '\n'  // show each fuzzy match
@@ -70,7 +71,7 @@ for the full list of `Matcher` class methods available to extract match info.
 
     #include "fuzzymatcher.h"
 
-    // e.g. all in one go with a temporary fuzzy matcher object
+    // match the whole input (here in one go with a temporary fuzzy matcher object)
     if (reflex::FuzzyMatcher("PATTERN", [MAX,] INPUT).matches())
     {
       std::cout << "fuzzy pattern matched\n";
@@ -82,6 +83,7 @@ for the full list of `Matcher` class methods available to extract match info.
 
     reflex::FuzzyMatcher matcher("PATTERN", [MAX,] INPUT);
 
+    // split the input into parts separated by pattern matches
     while (matcher.split())
     {
       std::cout << matcher.text() << '\n' // show text between fuzzy matches
