@@ -122,8 +122,8 @@ classes, convert the regex pattern before using it as follows:
 ### Static regex patterns
 
 Fixed patterns should be constructed (and optionally Unicode converted) just
-once statically to avoid repeated construction, e.g. in loops and function
-calls:
+once statically to avoid repeated construction, e.g. in the body of loops and
+in frequently executed functions:
 
     static const reflex::Pattern pattern(reflex::Matcher::convert("PATTERN", reflex::convert_flag::unicode));
     reflex::FuzzyMatcher matcher(pattern, [MAX,] INPUT);
