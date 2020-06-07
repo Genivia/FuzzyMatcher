@@ -2,7 +2,7 @@ FuzzyMatcher
 ============
 
 A C++ class extension of the [RE/flex](https://github.com/Genivia/RE-flex)
-Matcher class to support fuzzy matching and search with regex patterns.
+Matcher class for efficient fuzzy matching and fuzzy search with regex patterns.
 
 - specify max error as a parameter, i.e. the max edit distance or
   [Levenshstein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)
