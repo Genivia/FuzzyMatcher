@@ -807,29 +807,61 @@ unrolled:
       if (method == Const::FIND && !at_end())
       {
         // fuzzy search with find() can safely advance on a single prefix char of the regex
-        if (pos_ > cur_ && pat_->len_ > 0)
+        if (pos_ > cur_)
         {
-          // this part is based on advance() in matcher.cpp
+          // this part is based on advance() in matcher.cpp, limited to first pattern char(s) match
           size_t loc = cur_ + 1;
-          while (true)
+          if (pat_->len_ == 0)
           {
-            const char *s = buf_ + loc;
-            const char *e = buf_ + end_;
-            s = static_cast<const char*>(std::memchr(s, *pat_->pre_, e - s));
-            if (s != NULL)
+            if (pat_->min_ > 0)
             {
-              loc = s - buf_;
-              set_current(loc);
-              goto scan;
+              const Pattern::Pred *pma = pat_->pma_;
+              while (true)
+              {
+                const char *s = buf_ + loc;
+                const char *e = buf_ + end_;
+                while (s < e && (pma[static_cast<uint8_t>(*s)] & 0xc0) == 0xc0)
+                  ++s;
+                if (s < e)
+                {
+                  loc = s - buf_;
+                  set_current(loc);
+                  goto scan;
+                }
+                loc = e - buf_;
+                set_current_match(loc - 1);
+                peek_more();
+                loc = cur_ + 1;
+                if (loc >= end_)
+                {
+                  set_current(loc);
+                  break;
+                }
+              }
             }
-            loc = e - buf_;
-            set_current_match(loc - 1);
-            peek_more();
-            loc = cur_ + 1;
-            if (loc + pat_->len_ > end_)
+          }
+          else
+          {
+            while (true)
             {
-              set_current(loc);
-              break;
+              const char *s = buf_ + loc;
+              const char *e = buf_ + end_;
+              s = static_cast<const char*>(std::memchr(s, *pat_->pre_, e - s));
+              if (s != NULL)
+              {
+                loc = s - buf_;
+                set_current(loc);
+                goto scan;
+              }
+              loc = e - buf_;
+              set_current_match(loc - 1);
+              peek_more();
+              loc = cur_ + 1;
+              if (loc + pat_->len_ > end_)
+              {
+                set_current(loc);
+                break;
+              }
             }
           }
         }
