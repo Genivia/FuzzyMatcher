@@ -155,6 +155,16 @@ Testing
     split():   '' at 0 (2 edits)
     split():   '' at 4 (0 edits)
 
+Work in progress
+----------------
+
+- We do not always attempt to compute the minimal edit distance of a regex
+  fuzzy match for speed, but we still want to return the exact match when an
+  exact match overlaps a fuzzy match.  For example, the regex `abc` fuzzy
+  matches `aba` in the text `ababc` that contains the exact match `abc`.  Exact
+  matches like these can be efficiently returned by performing another pass
+  over the fuzzy match.
+
 License
 -------
 
