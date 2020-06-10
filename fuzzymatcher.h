@@ -170,7 +170,14 @@ class FuzzyMatcher : public Matcher {
     SaveState(size_t ded)
       :
         use(false),
-        ded(ded)
+        loc(0),
+        cap(0),
+        txt(0),
+        cur(0),
+        pos(0),
+        ded(ded),
+        mrk(false),
+        err(0)
     { }
     bool    use;
     size_t  loc;
