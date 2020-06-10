@@ -51,16 +51,14 @@ Optimizations
 
 Fuzzy `find()` and `split()` make a second pass over a fuzzy-matched pattern
 when the match has a nonzero error.  This second pass checks if an exact match
-exists or if a better match exists that overlaps the first pattern found.  For
-example, the pattern `abc` is found to fuzzy match all of the text `aabc` with
-one error (an extra `a`).  The second pass of `find()` detects an exact match
-after skipping the first `a`.  Likewise, the pattern `abc` is found to fuzzy
-match `ababc` with a match for `aba` with one error (substitution of `c` by an
-`a`).  The second pass of `find()` detects an exact match after skipping `ab`
-in the text.
-
-This approach is faster than minimizing the edit distance while searching text,
-while returning exact matches when possible.
+exists or if a better match exists that overlaps with the first pattern found.
+For example, the pattern `abc` is found to fuzzy match all of the text `aabc`
+with one error (an extra `a`).  The second pass of `find()` detects an exact
+match after skipping the first `a`.  Likewise, the pattern `abc` is found to
+fuzzy match `ababc` with a match for `aba` with one error (substitution of `c`
+by an `a`).  The second pass of `find()` detects an exact match after skipping
+`ab` in the text.  This approach is faster than minimizing the edit distance
+when searching text, while returning exact matches when possible.
 
 Usage
 -----
