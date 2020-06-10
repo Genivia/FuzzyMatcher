@@ -9,19 +9,22 @@
 // *) Levenshstein distance: char insertion, substitution, deletion
 //
 // Build after installing RE/flex:
-//   c++ -o test test.cpp -lreflex
+//   c++ -o ftest ftest.cpp -lreflex
 //
 // Run:
-//   ./test 'abcd' 'axbcd'
-//   ./test 'abcd' 'axcd'
-//   ./test 'abcd' 'acd'
-//   ./test 'a😀cd' 'axcd'
-//   ./test 'abcd' 'a😀cd'
-//   ./test 'a\d+z' 'az'
-//   ./test 'a\d+z' 'a9'
-//   ./test 'ab_cd' 'abcd'
-//   ./test 'ab_cd' 'ab-cd'
-//   ./test 'ab_cd' 'abCd' 2
+//   ./ftest 'abcd' 'axbcd'
+//   ./ftest 'abcd' 'axcd'
+//   ./ftest 'abcd' 'acd'
+//   ./ftest 'a😀cd' 'axcd'
+//   ./ftest 'abcd' 'a😀cd'
+//   ./ftest 'a\d+z' 'az'
+//   ./ftest 'a\d+z' 'a9'
+//   ./ftest 'abc'   'aabc'
+//   ./ftest 'abc'   'ababc'
+//   ./ftest 'ab_cd' 'abcd'
+//   ./ftest 'ab_cd' 'ab-cd'
+//   ./ftest 'ab_cd' 'abCd' 2
+//   ./ftest 'ab_cd' 'ab_ab_cd' 2
 
 // #define DEBUG // enable debugging to stderr
 

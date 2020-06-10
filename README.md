@@ -46,6 +46,22 @@ pattern    | max | fuzzy `matches()` matches                            | but no
 `ab_cd`    | 2   | `ab_cd`, `Ab_Cd`, `ab-cd`, `ab Cd`, `Ab_cd`, `abCd`  | `ab\ncd`, `AbCd`
 `a[0-9]+z` | 1   | `a1z`, `A1z`, `a123z`, `az`, `Az`, `axz`, `123z`     | `axxz`
 
+Optimizations
+-------------
+
+Fuzzy `find()` and `split()` make a second pass over a fuzzy-matched pattern
+when the match has a nonzero error.  This second pass checks if an exact match
+exists or if a better match exists that overlaps the first pattern found.  For
+example, the pattern `abc` is found to fuzzy match all of the text `aabc` with
+one error (an extra `a`).  The second pass of `find()` detects an exact match
+after skipping the first `a`.  Likewise, the pattern `abc` is found to fuzzy
+match `ababc` with a match for `aba` with one error (substitution of `c` by an
+`a`).  The second pass of `find()` detects an exact match after skipping `ab`
+in the text.
+
+This approach is faster than minimizing the edit distance while searching text,
+while returning exact matches when possible.
+
 Usage
 -----
 
@@ -154,16 +170,6 @@ Testing
     find():    'abCd' at 0 (2 edits)
     split():   '' at 0 (2 edits)
     split():   '' at 4 (0 edits)
-
-Work in progress
-----------------
-
-- We do not always attempt to compute the minimal edit distance of a regex
-  fuzzy match for speed, but we still want to return the exact match when an
-  exact match overlaps a fuzzy match.  For example, the regex `abc` fuzzy
-  matches `aba` in the text `ababc` that contains the exact match `abc`.  Exact
-  matches like these can be efficiently returned by performing another pass
-  over the fuzzy match.
 
 License
 -------
