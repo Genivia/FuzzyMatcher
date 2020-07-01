@@ -75,11 +75,12 @@ Usage
     while (matcher.find())
     {
       std::cout << matcher.text() << '\n'  // show each fuzzy match
-      std::cout << matcher.edits() << '\n' // edit dist. (when > 1 not guaranteed minimal)
+      std::cout << matcher.edits() << '\n' // edit distance (when > 0 not guaranteed minimal)
     }
 
 See the [RE/flex user guide](https://www.genivia.com/doc/reflex/html/#regex-methods)
 for the full list of `Matcher` class methods available to extract match info.
+The `edits()` method is a `FuzzyMatcher` extension of the `Matcher` class.
 
 ### Fuzzy matching
 
@@ -103,7 +104,7 @@ for the full list of `Matcher` class methods available to extract match info.
       std::cout << matcher.text() << '\n' // show text between fuzzy matches
     }
 
-### Character insertion, deletion and/or substitution
+### Character insertion, deletion and substitution
 
 The `MAX` parameter may be combined with one or more of the following flags:
 
