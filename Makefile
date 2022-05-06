@@ -10,6 +10,7 @@ CXXFLAGS  = $(CXXWFLAGS) $(CXXOFLAGS) $(CXXIFLAGS) $(CXXMFLAGS)
 
 ftest:		ftest.cpp fuzzymatcher.h
 		$(CXX) $(CXXFLAGS) -o $@ $< $(LIBREFLEX)
+		./ftest
 
 .PHONY:		clean
 
