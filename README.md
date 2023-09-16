@@ -30,7 +30,7 @@ Matcher class for efficient fuzzy matching and fuzzy search with regex patterns.
 Requires
 --------
 
-[RE-Flex](https://github.com/Genivia/RE-flex) version 3.3.7 or greater.
+[RE-Flex](https://github.com/Genivia/RE-flex) version 3.4.0 or greater.
 
 Examples
 --------
@@ -115,14 +115,14 @@ The `edits()` method is a `FuzzyMatcher` extension of the `Matcher` class.
 
 The `MAX` parameter may be combined with one or more of the following flags:
 
-- `reflex::FuzzyMatcher::INS` allow character insertions (extra characters)
-- `reflex::FuzzyMatcher::DEL` allow character deletions (missing characters)
-- `reflex::FuzzyMatcher::SUB` character substitutions count as one edit
+- `reflex::FuzzyMatcher::INS` insertions allow extra character(s) in the input
+- `reflex::FuzzyMatcher::DEL` deletions allow missing character(s) in the input
+- `reflex::FuzzyMatcher::SUB` substitutions count as one edit
 - `reflex::FuzzyMatcher::BIN` ASCII/binary fuzzy matching (default is Unicode with Unicode pattern converter, see below)
 
 For example, to allow approximate pattern matches to include up to three
-character insertions, but no deletions or substitutions (this is actually the
-most efficient fuzzy matching possible):
+character insertions, but no deletions or substitutions (allowing insertions
+only is actually the most efficient fuzzy matching possible):
 
     reflex::FuzzyMatcher matcher(regex, 3 | reflex::FuzzyMatcher::INS, INPUT);
 
