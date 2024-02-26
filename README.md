@@ -153,20 +153,14 @@ in frequently executed functions:
     static const reflex::Pattern pattern(reflex::Matcher::convert("PATTERN", reflex::convert_flag::unicode));
     reflex::FuzzyMatcher matcher(pattern, [MAX,] INPUT);
 
-Requires
---------
-
-[RE/flex](https://github.com/Genivia/RE-flex) downloaded and locally built or
-globally installed to access the `reflex/include` and `reflex/lib` files.
-
 Compiling
 ---------
 
-Assuming `reflex` dir with source code is locally built in the project dir:
+Assuming `reflex` dir with RE/flex source code is locally built:
 
     c++ -o myapp myapp.cpp -Ireflex/include reflex/lib/libreflex.a
 
-Or when the `libreflex` library is installed:
+When the `libreflex` library is built and installed:
 
     c++ -o myapp myapp.cpp -lreflex
 
